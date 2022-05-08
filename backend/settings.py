@@ -100,7 +100,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'frontend/build')
+            os.path.join(BASE_DIR, 'client/build')
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -116,19 +116,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
+database_name = os.environ.get("DB_NAME")
+username = os.environ.get("USERNAME")
+password = os.environ.get("PASSWORD")
+host = os.environ.get("HOST")
+port = os.environ.get("PORT")
+
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 DATABASES = {
    'default': {
        'ENGINE': 'django.db.backends.postgresql',
-       'NAME': 'proshop',
-       'USER': 'postgres',
-       'PASSWORD': 'pass12345',
-       'HOST': 'localhost',
-       'PORT': '5432'
+       'NAME': database_name,
+       'USER': username,
+       'PASSWORD': password,
+       'HOST': host,
+       'PORT': port
    }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -171,7 +176,7 @@ MEDIA_URL = '/images/'
 
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
-    BASE_DIR / 'frontend/build/static'
+    BASE_DIR / 'client/build/static'
 ]
 
 
