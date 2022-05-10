@@ -120,17 +120,16 @@ database_name = os.environ.get("DB_NAME")
 username = os.environ.get("USERNAME")
 password = os.environ.get("PASSWORD")
 host = os.environ.get("HOST")
-port = os.environ.get("PORT")
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 DATABASES = {
    'default': {
        'ENGINE': 'django.db.backends.postgresql',
-       'NAME': 'proshop',
-       'USER': 'postgres',
-       'PASSWORD': 'pass12345',
-       'HOST': 'localhost',
+       'NAME': database_name,
+       'USER': username,
+       'PASSWORD': password,
+       'HOST': host,
        'PORT': '5432'
    }
 }
