@@ -29,7 +29,7 @@ class AuthStore {
     this.loading = true;
     this.error = null;
     try {
-      const response = await httpClient.post('login/', credentials);
+      const response = await httpClient.post('login', credentials);
       const { access, refresh, userData } = response.data;
 
       // Save tokens and user info
@@ -57,7 +57,7 @@ class AuthStore {
     this.loading = true;
     this.error = null;
     try {
-      await httpClient.post('register/', registrationData);
+      await httpClient.post('register', registrationData);
       runInAction(() => {
         this.loading = false;
       });
