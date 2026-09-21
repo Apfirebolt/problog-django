@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../context/StoreContext';
 import { useNavigate } from 'react-router';
@@ -12,7 +12,7 @@ import Quote from '@editorjs/quote';
 import Table from '@editorjs/table';
 import Delimiter from '@editorjs/delimiter';
 import Marker from '@editorjs/marker';
-import Strikethrough from '@editorjs/strikethrough';
+import Strikethrough from 'editorjs-strikethrough'; // Fixed import name
 
 // Components
 import HeaderNav from '../components/Header';
@@ -30,7 +30,6 @@ const WritePost = observer(() => {
   const [previewContent, setPreviewContent] = useState([]);
 
   useEffect(() => {
-    // Initialize Editor.js with advanced block plugins
     if (!editorInstance.current) {
       editorInstance.current = new EditorJS({
         holder: 'editorjs-container',
@@ -67,7 +66,6 @@ const WritePost = observer(() => {
       });
     }
 
-    // Cleanup on unmount
     return () => {
       if (editorInstance.current && typeof editorInstance.current.destroy === 'function') {
         editorInstance.current.destroy();
@@ -122,10 +120,8 @@ const WritePost = observer(() => {
   return (
     <div className="min-h-screen bg-white font-sans flex flex-col justify-between">
       <div>
-        {/* Global Header */}
         <HeaderNav />
 
-        {/* Main Writer Area */}
         <main className="flex-1 max-w-2xl w-full mx-auto px-6 py-12">
           {errorMsg && (
             <div className="mb-6 p-4 bg-red-50 text-palette-dark border border-palette-medium rounded-xl text-sm">
@@ -133,7 +129,6 @@ const WritePost = observer(() => {
             </div>
           )}
 
-          {/* Title Input */}
           <input
             type="text"
             placeholder="Title"
@@ -142,7 +137,6 @@ const WritePost = observer(() => {
             className="w-full text-4xl md:text-5xl font-serif font-bold border-none outline-none placeholder-gray-300 mb-4 text-palette-dark bg-transparent"
           />
 
-          {/* Subtitle Input */}
           <input
             type="text"
             placeholder="Subtitle (optional)"
@@ -151,12 +145,10 @@ const WritePost = observer(() => {
             className="w-full text-xl text-gray-500 font-sans border-none outline-none placeholder-gray-300 mb-8 bg-transparent"
           />
 
-          {/* Editor.js Container Node */}
           <div id="editorjs-container" className="prose max-w-none font-sans min-h-[400px]"></div>
         </main>
       </div>
 
-      {/* Floating Bottom Action Toolbar (Publish in the Center) */}
       <div className="sticky bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-100 py-4 px-6 z-40 shadow-lg">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <button
@@ -191,7 +183,6 @@ const WritePost = observer(() => {
         </div>
       </div>
 
-      {/* Full-Screen Preview Modal */}
       {isPreviewOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <div className="bg-white w-full max-w-2xl max-h-[85vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-palette-light animate-in fade-in zoom-in-95 duration-150">
@@ -258,7 +249,6 @@ const WritePost = observer(() => {
         </div>
       )}
 
-      {/* Global Footer */}
       <Footer />
     </div>
   );
