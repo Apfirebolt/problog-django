@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../context/StoreContext';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 // Editor.js core and plugins
 import EditorJS from '@editorjs/editorjs';
@@ -12,7 +12,7 @@ import Quote from '@editorjs/quote';
 import Table from '@editorjs/table';
 import Delimiter from '@editorjs/delimiter';
 import Marker from '@editorjs/marker';
-import Strikethrough from 'editorjs-strikethrough'; // Fixed import name
+import Strikethrough from 'editorjs-strikethrough';
 
 // Components
 import HeaderNav from '../components/Header';
@@ -21,6 +21,9 @@ import Footer from '../components/Footer';
 const WritePost = observer(() => {
   const { blogStore } = useStore();
   const navigate = useNavigate();
+  const { slug } = useParams(); // Check if a slug exists in the URL
+  const isEditing = Boolean(slug);
+
   const editorInstance = useRef(null);
 
   const [title, setTitle] = useState('');
@@ -28,11 +31,36 @@ const WritePost = observer(() => {
   const [errorMsg, setErrorMsg] = useState(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewContent, setPreviewContent] = useState([]);
+  const [isInitializing, setIsInitializing] = useState(true);
 
+  // Fetch post data if we are in edit mode
   useEffect(() => {
+    const loadPostData = async () => {
+      if (isEditing) {
+        await blogStore.fetchPostBySlug(slug);
+        if (blogStore.currentPost) {
+          setTitle(blogStore.currentPost.title || '');
+          setSubtitle(blogStore.currentPost.subtitle || '');
+        }
+      }
+      setIsInitializing(false);
+    };
+
+    loadPostData();
+  }, [slug, isEditing, blogStore]);
+
+  // Initialize Editor.js after data is loaded (or immediately for new posts)
+  useEffect(() => {
+    if (isInitializing) return;
+
     if (!editorInstance.current) {
+      const initialData = isEditing && blogStore.currentPost?.content 
+        ? { blocks: blogStore.currentPost.content } 
+        : { blocks: [] };
+
       editorInstance.current = new EditorJS({
         holder: 'editorjs-container',
+        data: initialData,
         tools: {
           header: {
             class: Header,
@@ -66,13 +94,14 @@ const WritePost = observer(() => {
       });
     }
 
+    // Cleanup on unmount
     return () => {
       if (editorInstance.current && typeof editorInstance.current.destroy === 'function') {
         editorInstance.current.destroy();
         editorInstance.current = null;
       }
     };
-  }, []);
+  }, [isInitializing, isEditing, blogStore.currentPost]);
 
   const handleSave = async (isPublished = true) => {
     if (!title.trim()) {
@@ -94,8 +123,14 @@ const WritePost = observer(() => {
         is_published: isPublished,
       };
 
-      const newPost = await blogStore.createPost(payload);
-      if (newPost) {
+      let success = false;
+      if (isEditing) {
+        success = await blogStore.updatePost(slug, payload);
+      } else {
+        success = await blogStore.createPost(payload);
+      }
+
+      if (success) {
         navigate('/dashboard');
       } else {
         setErrorMsg(blogStore.error || 'Failed to save story.');
@@ -116,6 +151,14 @@ const WritePost = observer(() => {
       console.error('Preview generation failed', err);
     }
   };
+
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white font-sans text-gray-500">
+        Loading editor...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white font-sans flex flex-col justify-between">
@@ -177,12 +220,13 @@ const WritePost = observer(() => {
               disabled={blogStore.loading}
               className="px-6 py-2 bg-palette-dark text-white rounded-full text-sm font-medium hover:opacity-90 transition shadow-md"
             >
-              {blogStore.loading ? 'Publishing...' : 'Publish Story'}
+              {blogStore.loading ? 'Saving...' : isEditing ? 'Update Story' : 'Publish Story'}
             </button>
           </div>
         </div>
       </div>
 
+      {/* Preview Modal */}
       {isPreviewOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <div className="bg-white w-full max-w-2xl max-h-[85vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-palette-light animate-in fade-in zoom-in-95 duration-150">

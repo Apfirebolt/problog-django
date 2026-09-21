@@ -19,6 +19,7 @@ function App() {
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/write" element={<WritePost />} />
+          <Route path="/write/:slug" element={<WritePost />} />
         </Route>
       </Routes>
     </BrowserRouter>
