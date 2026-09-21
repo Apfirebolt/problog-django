@@ -19,14 +19,18 @@ class BlogStore {
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
-  // Fetch all posts (Feed)
   async fetchPosts() {
     this.loading = true;
     this.error = null;
     try {
-      const response = await httpClient.get('blog/posts');
+      const response = await httpClient.get('posts');
+      
+      // Handle both DRF paginated structure (response.data.results) and flat arrays
+      const data = response.data || response;
+      const postsArray = Array.isArray(data) ? data : (data.results || []);
+
       runInAction(() => {
-        this.posts = response.data;
+        this.posts = postsArray;
         this.loading = false;
       });
     } catch (err) {
@@ -42,7 +46,7 @@ class BlogStore {
     this.loading = true;
     this.error = null;
     try {
-      const response = await httpClient.get(`blog/posts/${slug}`);
+      const response = await httpClient.get(`posts/${slug}`);
       runInAction(() => {
         this.currentPost = response.data;
         this.loading = false;
@@ -61,7 +65,7 @@ class BlogStore {
     this.error = null;
     try {
       const response = await httpClient.post(
-        'blog/posts', 
+        'posts', 
         postData, 
         { headers: this.getAuthHeaders() }
       );
@@ -85,7 +89,7 @@ class BlogStore {
     this.error = null;
     try {
       const response = await httpClient.put(
-        `blog/posts/${slug}`, 
+        `posts/${slug}`, 
         postData, 
         { headers: this.getAuthHeaders() }
       );
@@ -109,7 +113,7 @@ class BlogStore {
     this.loading = true;
     try {
       await httpClient.delete(
-        `blog/posts/${slug}`, 
+        `posts/${slug}`, 
         { headers: this.getAuthHeaders() }
       );
       runInAction(() => {
@@ -129,7 +133,7 @@ class BlogStore {
   // Fetch tags for filtering/categorization
   async fetchTags() {
     try {
-      const response = await httpClient.get('blog/tags/');
+      const response = await httpClient.get('tags/');
       runInAction(() => {
         this.tags = response.data;
       });

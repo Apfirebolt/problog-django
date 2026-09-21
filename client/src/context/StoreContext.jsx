@@ -1,14 +1,19 @@
 // src/context/StoreContext.jsx
 import { createContext, useContext } from 'react';
 import { authStore } from '../stores/AuthStore';
+import BlogStore from '../stores/BlogStore';
+
+// Instantiate the stores once globally
+const blogStore = new BlogStore();
 
 const RootStoreContext = createContext({
   authStore,
+  blogStore,
 });
 
 export const StoreProvider = ({ children }) => {
   return (
-    <RootStoreContext.Provider value={{ authStore }}>
+    <RootStoreContext.Provider value={{ authStore, blogStore }}>
       {children}
     </RootStoreContext.Provider>
   );
