@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../context/StoreContext';
-import { Link, useNavigate } from 'react-router';
+import { Link } from 'react-router';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 const Dashboard = observer(() => {
-  const { authStore, blogStore } = useStore();
-  const navigate = useNavigate();
+  const { blogStore } = useStore();
   
   // State to manage the full content modal view
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,11 +16,6 @@ const Dashboard = observer(() => {
     blogStore.fetchPosts();
   }, [blogStore]);
 
-  const handleLogout = () => {
-    authStore.logout();
-    navigate('/login');
-  };
-
   const handleViewPost = async (slug) => {
     await blogStore.fetchPostBySlug(slug);
     setIsModalOpen(true);
@@ -27,29 +23,8 @@ const Dashboard = observer(() => {
 
   return (
     <div className="min-h-screen bg-palette-lightest font-sans flex flex-col relative">
-      {/* Dashboard Navbar */}
-      <nav className="flex justify-between items-center px-8 py-4 bg-white border-b border-palette-light shadow-xs">
-        <Link to="/" className="text-2xl font-serif font-bold text-palette-dark">
-          ProBlog <span className="text-xs font-sans font-normal uppercase tracking-widest bg-palette-light px-2 py-0.5 rounded-full ml-2">Dashboard</span>
-        </Link>
-        <div className="flex items-center space-x-6">
-          <span className="text-sm font-medium text-gray-700">
-            Welcome, <strong className="text-palette-dark">{authStore.user?.username || authStore.user?.email}</strong>
-          </span>
-          <Link
-            to="/write"
-            className="px-5 py-2 text-sm bg-palette-dark text-white rounded-full font-medium hover:opacity-90 transition shadow-sm flex items-center space-x-1"
-          >
-            <span>Write Story</span>
-          </Link>
-          <button 
-            onClick={handleLogout}
-            className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition"
-          >
-            Logout
-          </button>
-        </div>
-      </nav>
+      {/* Reusable Header Component */}
+      <Header isDashboard={true} />
 
       {/* Main Dashboard Content */}
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-10">
@@ -127,7 +102,7 @@ const Dashboard = observer(() => {
           </div>
         )}
       </main>
-
+      <Footer />
       {/* Full Content Modal Viewer */}
       {isModalOpen && blogStore.currentPost && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
@@ -191,6 +166,7 @@ const Dashboard = observer(() => {
         </div>
       )}
     </div>
+    
   );
 });
 
