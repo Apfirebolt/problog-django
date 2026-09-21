@@ -51,3 +51,7 @@ tmp_email/
 .direnv
 .envrc
 .tool-versions
+
+# env files
+
+.env
